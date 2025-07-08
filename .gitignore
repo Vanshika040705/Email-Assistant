@@ -1,0 +1,9 @@
+# Sensitive files
+.env
+credentials.json
+
+# Python cache
+__pycache__/
+
+# Virtual environment folders (adjust if different)
+env/
