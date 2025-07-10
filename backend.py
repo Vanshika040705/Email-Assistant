@@ -20,6 +20,13 @@ import traceback
 import streamlit as st
 import pytz
 
+creds_json = st.secrets["GOOGLE_SERVICE_ACCOUNT"]
+creds_dict = json.loads(creds_json)
+
+# If you're using Google APIs:
+from google.oauth2 import service_account
+creds = service_account.Credentials.from_service_account_info(creds_dict)
+
 logging.basicConfig(level=logging.INFO)
 
 class EmailReplySystem:

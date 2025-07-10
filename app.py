@@ -8,12 +8,6 @@ from streamlit_autorefresh import st_autorefresh
 import os
 import pytz
 
-# Enable auto-refresh every 15 seconds
-st_autorefresh(interval=15 * 1000, key="refresh")
-
-st.set_page_config(page_title="Automatic Email Reply System with Agentic AI", layout="wide")
-st.title("📧 Automatic Email Reply System with Agentic AI")
-
 # Initialize backend system (singleton)
 if 'backend' not in st.session_state:
     st.session_state.backend = EmailReplySystem()
