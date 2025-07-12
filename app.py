@@ -8,6 +8,17 @@ from streamlit_autorefresh import st_autorefresh
 import os
 import pytz
 
+# Add main project heading at the top of the app
+st.markdown(
+    """
+    <div style='display: flex; align-items: center; margin-bottom: 2.5rem; margin-top: 1.5rem;'>
+        <img src='https://img.icons8.com/color/96/000000/new-post.png' alt='Email Icon' style='width: 48px; height: 48px; margin-right: 18px; border-radius: 10px; background: #23272f; padding: 4px;'>
+        <span style='font-size: 2.6rem; font-weight: 700; letter-spacing: 1px;'>Automatic Email Reply System with Agentic AI</span>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
 # Initialize backend system (singleton)
 if 'backend' not in st.session_state:
     st.session_state.backend = EmailReplySystem()
@@ -92,17 +103,43 @@ tabs = st.tabs([
 
 # Dashboard Tab
 with tabs[0]:
-    st.header("Email Threads & Response History")
-    if st.button("Clear Dashboard Data", type="secondary"):
-        backend.clear_dashboard()
-        st.success("Dashboard data cleared!")
-        st.rerun()
+    st.markdown(
+        """
+        <style>
+        .block-container {
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+            max-width: 100vw !important;
+        }
+        .stTabs [data-baseweb="tab-list"] {
+            width: 100vw !important;
+        }
+        .stDataFrame, .stTable {
+            width: 100vw !important;
+        }
+        .dashboard-title {
+            font-size: 1.6rem !important;
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+    st.markdown('<div class="dashboard-title">Email Threads & Response History</div>', unsafe_allow_html=True)
+    col_clear1, col_clear2 = st.columns([1,1])
+    with col_clear1:
+        if st.button("Clear Dashboard Data", type="secondary"):
+            backend.clear_dashboard()
+            st.success("Dashboard data cleared!")
+            st.rerun()
+    # Removed the Clear Threads button from the dashboard tab
     df = backend.get_dashboard_data()
     if not df.empty:
         # Show status column instead of subject
         show_df = df[["from", "status", "intent", "confidence", "sensitive", "date", "ai_reply"]]
         show_df.columns = [col.title() for col in show_df.columns]
-        st.dataframe(show_df, use_container_width=False)
+        st.dataframe(show_df, use_container_width=True)
     else:
         st.info("No email data to display yet. The system auto-fetches every 15 seconds.")
 
@@ -223,6 +260,10 @@ with tabs[2]:
 # Threads Tab
 with tabs[3]:
     st.header("Email Threads")
+    if st.button("Clear Threads", type="secondary", key="clear_threads_threads_tab"):
+        backend.clear_threads()
+        st.success("Threads cleared!")
+        st.rerun()
     threads = backend.get_threads_data()
     if not threads:
         st.info("No threads to display yet.")
@@ -329,6 +370,10 @@ with tabs[4]:
 # Confirmed Meetings Tab
 with tabs[5]:
     st.header("Confirmed Meetings (via Email)")
+    if st.button("Clear Meetings", type="secondary", key="clear_meetings_confirmed_tab"):
+        backend.clear_confirmed_meetings()
+        st.success("Confirmed meetings cleared!")
+        st.rerun()
     confirmed = backend.get_confirmed_events()
     if confirmed:
         df_confirmed = pd.DataFrame(confirmed)

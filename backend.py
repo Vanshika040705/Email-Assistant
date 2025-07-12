@@ -20,12 +20,6 @@ import traceback
 import streamlit as st
 import pytz
 
-creds_json = st.secrets["GOOGLE_SERVICE_ACCOUNT"]
-creds_dict = json.loads(creds_json)
-
-# If you're using Google APIs:
-from google.oauth2 import service_account
-creds = service_account.Credentials.from_service_account_info(creds_dict)
 
 logging.basicConfig(level=logging.INFO)
 
@@ -84,8 +78,12 @@ class EmailReplySystem:
         self.creds = service_account.Credentials.from_service_account_file(
             'credentials.json', scopes=SCOPES)
         self.calendar_service = build('calendar', 'v3', credentials=self.creds)
-        # Use environment variable for calendar ID, fallback to default
-        self.calendar_id = os.environ.get('GOOGLE_CALENDAR_ID', 'emailassistant25@gmail.com')
+        # Require environment variable for calendar ID
+        self.calendar_id = os.environ.get('GOOGLE_CALENDAR_ID', '')
+        if not self.calendar_id:
+            raise ValueError(
+                "GOOGLE_CALENDAR_ID is not set! Please add your Google Calendar ID to your .env file."
+            )
 
     def check_calendar(self, meeting_time):
         try:
@@ -726,6 +724,14 @@ Body: {email_obj['body']}
 
     def clear_dashboard(self):
         self.dashboard_data = []
+        self.save_dashboard()
+
+    def clear_threads(self):
+        self.threads = {}
+        self.save_dashboard()
+
+    def clear_confirmed_meetings(self):
+        self.confirmed_events = []
         self.save_dashboard()
 
     def get_confirmed_events(self):
